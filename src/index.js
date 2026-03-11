@@ -460,7 +460,7 @@ function getHTML() {
 <div class="card">
   <!-- Header -->
   <div class="header">
-    <img height="24" width="24" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg" alt="Creeper Icon">
+    <img height="32" width="32" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg" alt="Creeper Icon">
     <div class="header-text">
       <h1>Mojang Authentication Status</h1>
       <p>sessionserver.mojang.com &mdash; checked every 5 minutes</p>
