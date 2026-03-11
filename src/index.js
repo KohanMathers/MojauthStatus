@@ -460,21 +460,7 @@ function getHTML() {
 <div class="card">
   <!-- Header -->
   <div class="header">
-    <svg class="creeper-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-      <rect width="16" height="16" fill="#3a7a3a"/>
-      <rect x="1" y="1" width="6" height="6" fill="#2d5e2d"/>
-      <rect x="9" y="1" width="6" height="6" fill="#2d5e2d"/>
-      <rect x="3" y="2" width="2" height="2" fill="#050505"/>
-      <rect x="11" y="2" width="2" height="2" fill="#050505"/>
-      <rect x="6" y="6" width="4" height="2" fill="#050505"/>
-      <rect x="5" y="8" width="6" height="1" fill="#050505"/>
-      <rect x="4" y="9" width="3" height="2" fill="#050505"/>
-      <rect x="9" y="9" width="3" height="2" fill="#050505"/>
-      <rect x="1" y="7" width="14" height="8" fill="#4a9a4a"/>
-      <rect x="6" y="7" width="4" height="2" fill="#2d5e2d"/>
-      <rect x="5" y="9" width="2" height="3" fill="#2d5e2d"/>
-      <rect x="9" y="9" width="2" height="3" fill="#2d5e2d"/>
-    </svg>
+    <img height="16" width="16" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg" alt="Creeper Icon">
     <div class="header-text">
       <h1>Mojang Authentication Status</h1>
       <p>sessionserver.mojang.com &mdash; checked every 5 minutes</p>
