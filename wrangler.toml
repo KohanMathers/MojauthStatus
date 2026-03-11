@@ -1,0 +1,13 @@
+name = "mojauth-status"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[dev]
+ip = "127.0.0.1"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "STATUS_KV"
+id = "7e9bd205f2314151884449b3cce3b297"
