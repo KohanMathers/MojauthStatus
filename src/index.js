@@ -352,7 +352,7 @@ function getHTML() {
   }
   #rt-chart {
     width: 100%;
-    height: 110px;
+    height: auto;
     display: block;
     overflow: visible;
   }
@@ -532,11 +532,12 @@ function getHTML() {
       </div>\`;
   }
 
-  function buildRtChart(recent) {
+  function buildRtChart(recent, W) {
     const pts = recent.filter(c => c.s === 'up');
     if (pts.length < 2) return '<p style="color:var(--muted);font-size:0.8rem;text-align:center;padding:20px">Not enough data yet</p>';
 
-    const W = 680, H = 90, PAD = { t: 8, b: 24, l: 36, r: 8 };
+    W = W || 680;
+    const H = 110, PAD = { t: 8, b: 24, l: 36, r: 8 };
     const cW = W - PAD.l - PAD.r, cH = H - PAD.t - PAD.b;
     const vals = pts.map(c => c.r);
     const minV = Math.min(...vals), maxV = Math.max(...vals);
@@ -566,7 +567,7 @@ function getHTML() {
     }).join('');
 
     return \`
-      <svg id="rt-chart" viewBox="0 0 \${W} \${H}" preserveAspectRatio="none">
+      <svg id="rt-chart" width="\${W}" height="\${H}" viewBox="0 0 \${W} \${H}" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="\${gradId}" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/>
@@ -650,7 +651,7 @@ function getHTML() {
           Response time
           <span>Successful checks only</span>
         </div>
-        \${buildRtChart(data.recent)}
+        <div id="rt-chart-container"></div>
       </div>
 
       <div class="checks-wrap">
@@ -664,6 +665,20 @@ function getHTML() {
     document.getElementById('content').innerHTML = html;
     document.getElementById('last-updated').textContent = 'Last updated: ' + fmtTime(Date.now());
 
+    const rtContainer = document.getElementById('rt-chart-container');
+    if (rtContainer) {
+      const innerW = rtContainer.closest('.chart-wrap').clientWidth - 32;
+      rtContainer.innerHTML = buildRtChart(data.recent, innerW);
+      rtContainer.querySelectorAll('.rt-dot').forEach(dot => {
+        const r = dot.dataset.r, t = dot.dataset.t;
+        dot.addEventListener('mouseenter', e => {
+          showTip(e, \`<strong style="color:#818cf8">\${r}ms</strong><br>\${fmtDate(+t)}\`);
+        });
+        dot.addEventListener('mousemove', moveTip);
+        dot.addEventListener('mouseleave', hideTip);
+      });
+    }
+
     document.querySelectorAll('.t-bar').forEach((bar, i) => {
       const c = data.recent[i];
       if (!c) return;
@@ -672,15 +687,6 @@ function getHTML() {
       });
       bar.addEventListener('mousemove', moveTip);
       bar.addEventListener('mouseleave', hideTip);
-    });
-
-    document.querySelectorAll('.rt-dot').forEach(dot => {
-      const r = dot.dataset.r, t = dot.dataset.t;
-      dot.addEventListener('mouseenter', e => {
-        showTip(e, \`<strong style="color:#818cf8">\${r}ms</strong><br>\${fmtDate(+t)}\`);
-      });
-      dot.addEventListener('mousemove', moveTip);
-      dot.addEventListener('mouseleave', hideTip);
     });
   }
 
