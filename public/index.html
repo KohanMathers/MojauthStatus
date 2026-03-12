@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mojang Auth Status</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div id="tooltip"></div>
+
+  <div class="card">
+    <div class="header">
+      <img height="32" width="32" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg"
+        alt="Creeper Icon">
+      <div class="header-text">
+        <h1>Mojang Authentication Status</h1>
+        <p>sessionserver.mojang.com &mdash; checked every 5 minutes</p>
+      </div>
+    </div>
+
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Fetching status&hellip;</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span id="last-updated">Loading&hellip;</span>
+      <div class="refresh-timer">
+        <div class="refresh-dot"></div>
+        <span id="refresh-countdown">Refresh in 30s</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>
