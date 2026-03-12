@@ -381,6 +381,29 @@ body {
   color: var(--muted);
 }
 
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-toggle {
+  font-size: 0.68rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  cursor: pointer;
+  line-height: 1.6;
+}
+
+.clock-toggle:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .refresh-timer {
   display: flex;
   align-items: center;

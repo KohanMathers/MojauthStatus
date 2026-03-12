@@ -2,12 +2,14 @@
   const tooltip = document.getElementById('tooltip');
   let refreshTimer = 30;
   let countdown;
+  let lastData = null;
+  let use24h = localStorage.getItem('clock24') === '1';
 
   function fmtTime(ts) {
-    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: !use24h });
   }
   function fmtDate(ts) {
-    return new Date(ts).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(ts).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: !use24h });
   }
   function fmtUptime(v) {
     if (v === null) return '—';
@@ -115,6 +117,7 @@
   }
 
   function render(data) {
+    lastData = data;
     const cur = data.current;
     const isUp = cur && cur.s === 'up';
     const heroClass = !cur ? '' : isUp ? 'is-up' : 'is-down';
@@ -225,6 +228,16 @@
       }
     }, 1000);
   }
+
+  const clockToggle = document.getElementById('clock-toggle');
+  function updateToggle() { clockToggle.textContent = use24h ? '24h' : '12h'; }
+  updateToggle();
+  clockToggle.addEventListener('click', () => {
+    use24h = !use24h;
+    localStorage.setItem('clock24', use24h ? '1' : '0');
+    updateToggle();
+    if (lastData) render(lastData);
+  });
 
   load();
   startCountdown();
