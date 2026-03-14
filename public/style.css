@@ -391,6 +391,14 @@ a:hover {
   color: var(--muted);
 }
 
+.js-only {
+  display: none;
+}
+
+.js .js-only {
+  display: flex;
+}
+
 .footer-right {
   display: flex;
   align-items: center;
