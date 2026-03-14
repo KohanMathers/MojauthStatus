@@ -1,6 +1,7 @@
 const MOJANG_URL =
   'https://sessionserver.mojang.com/session/minecraft/hasJoined?username=Steve&serverId=gibberish123';
 const MAX_CHECKS = 2016;
+const memoryChecks = [];
 
 export default {
   async fetch(request, env) {
@@ -44,17 +45,24 @@ async function performCheck(env) {
 
   const check = { t: Date.now(), s: status, c: statusCode, r: responseTime };
 
-  const existing = (await env.STATUS_KV.get('checks', 'json')) || [];
-  existing.push(check);
-  if (existing.length > MAX_CHECKS) {
-    existing.splice(0, existing.length - MAX_CHECKS);
-  }
+  // KV temporarily disabled due to usage limits. Keep checks in memory only.
+  // const existing = (await env.STATUS_KV.get('checks', 'json')) || [];
+  // existing.push(check);
+  // if (existing.length > MAX_CHECKS) {
+  //   existing.splice(0, existing.length - MAX_CHECKS);
+  // }
+  // await env.STATUS_KV.put('checks', JSON.stringify(existing));
 
-  await env.STATUS_KV.put('checks', JSON.stringify(existing));
+  memoryChecks.push(check);
+  if (memoryChecks.length > MAX_CHECKS) {
+    memoryChecks.splice(0, memoryChecks.length - MAX_CHECKS);
+  }
 }
 
 async function handleApiStatus(env) {
-  const checks = (await env.STATUS_KV.get('checks', 'json')) || [];
+  // KV temporarily disabled due to usage limits. Keep checks in memory only.
+  // const checks = (await env.STATUS_KV.get('checks', 'json')) || [];
+  const checks = memoryChecks;
 
   const now = Date.now();
   const ms = (h) => h * 3600000;
