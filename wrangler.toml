@@ -15,9 +15,10 @@ crons = ["*/5 * * * *"]
 binding = "STATUS_KV"
 id = "7e9bd205f2314151884449b3cce3b297"
 
-[[durable_objects]]
-binding = "STATUS_DO"
-class_name = "StatusStore"
+[durable_objects]
+bindings = [
+  { binding = "STATUS_DO", class_name = "StatusStore" }
+]
 
 [[migrations]]
 tag = "v1"
