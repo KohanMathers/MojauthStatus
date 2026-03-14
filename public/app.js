@@ -244,21 +244,23 @@
 
   const refreshToggle = document.getElementById('refresh-toggle');
   const refreshTimer_el = document.getElementById('refresh-timer');
-  function updateRefreshToggle() {
-    refreshToggle.textContent = autoRefresh ? 'Live' : 'Paused';
-    refreshTimer_el.style.visibility = autoRefresh ? '' : 'hidden';
-  }
-  updateRefreshToggle();
-  refreshToggle.addEventListener('click', () => {
-    autoRefresh = !autoRefresh;
-    localStorage.setItem('autoRefresh', autoRefresh ? '1' : '0');
-    updateRefreshToggle();
-    if (autoRefresh) {
-      startCountdown();
-    } else {
-      clearInterval(countdown);
+  if (refreshToggle && refreshTimer_el) {
+    function updateRefreshToggle() {
+      refreshToggle.textContent = autoRefresh ? 'Live' : 'Paused';
+      refreshTimer_el.style.visibility = autoRefresh ? '' : 'hidden';
     }
-  });
+    updateRefreshToggle();
+    refreshToggle.addEventListener('click', () => {
+      autoRefresh = !autoRefresh;
+      localStorage.setItem('autoRefresh', autoRefresh ? '1' : '0');
+      updateRefreshToggle();
+      if (autoRefresh) {
+        startCountdown();
+      } else {
+        clearInterval(countdown);
+      }
+    });
+  }
 
   const readmeButton = document.getElementById('readme-button');
   const readmeModal = document.getElementById('readme-modal');
