@@ -17,7 +17,7 @@ id = "7e9bd205f2314151884449b3cce3b297"
 
 [durable_objects]
 bindings = [
-  { binding = "STATUS_DO", class_name = "StatusStore" }
+  { name = "STATUS_DO", class_name = "StatusStore" }
 ]
 
 [[migrations]]
