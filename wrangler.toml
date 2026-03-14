@@ -14,3 +14,11 @@ crons = ["*/5 * * * *"]
 [[kv_namespaces]]
 binding = "STATUS_KV"
 id = "7e9bd205f2314151884449b3cce3b297"
+
+[[durable_objects]]
+binding = "STATUS_DO"
+class_name = "StatusStore"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["StatusStore"]

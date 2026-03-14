@@ -1,7 +1,6 @@
 const MOJANG_URL =
   'https://sessionserver.mojang.com/session/minecraft/hasJoined?username=Steve&serverId=gibberish123';
 const MAX_CHECKS = 2016;
-const memoryChecks = [];
 
 export default {
   async fetch(request, env) {
@@ -45,24 +44,11 @@ async function performCheck(env) {
 
   const check = { t: Date.now(), s: status, c: statusCode, r: responseTime };
 
-  // KV temporarily disabled due to usage limits. Keep checks in memory only.
-  // const existing = (await env.STATUS_KV.get('checks', 'json')) || [];
-  // existing.push(check);
-  // if (existing.length > MAX_CHECKS) {
-  //   existing.splice(0, existing.length - MAX_CHECKS);
-  // }
-  // await env.STATUS_KV.put('checks', JSON.stringify(existing));
-
-  memoryChecks.push(check);
-  if (memoryChecks.length > MAX_CHECKS) {
-    memoryChecks.splice(0, memoryChecks.length - MAX_CHECKS);
-  }
+  await appendCheck(env, check);
 }
 
 async function handleApiStatus(env) {
-  // KV temporarily disabled due to usage limits. Keep checks in memory only.
-  // const checks = (await env.STATUS_KV.get('checks', 'json')) || [];
-  const checks = memoryChecks;
+  const checks = await readChecks(env);
 
   const now = Date.now();
   const ms = (h) => h * 3600000;
@@ -100,4 +86,62 @@ async function handleApiStatus(env) {
       },
     }
   );
+}
+
+function getStatusStore(env) {
+  const id = env.STATUS_DO.idFromName('global');
+  return env.STATUS_DO.get(id);
+}
+
+async function readChecks(env) {
+  const stub = getStatusStore(env);
+  const res = await stub.fetch('https://status/checks');
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data.checks) ? data.checks : [];
+}
+
+async function appendCheck(env, check) {
+  const stub = getStatusStore(env);
+  await stub.fetch('https://status/checks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(check),
+  });
+}
+
+export class StatusStore {
+  constructor(state) {
+    this.state = state;
+  }
+
+  async fetch(request) {
+    const url = new URL(request.url);
+
+    if (url.pathname !== '/checks') {
+      return new Response('Not found', { status: 404 });
+    }
+
+    if (request.method === 'GET') {
+      const checks = (await this.state.storage.get('checks')) || [];
+      return new Response(JSON.stringify({ checks }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (request.method === 'POST') {
+      const check = await request.json();
+      const existing = (await this.state.storage.get('checks')) || [];
+      existing.push(check);
+      if (existing.length > MAX_CHECKS) {
+        existing.splice(0, existing.length - MAX_CHECKS);
+      }
+      await this.state.storage.put('checks', existing);
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response('Method not allowed', { status: 405 });
+  }
 }
