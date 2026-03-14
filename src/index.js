@@ -222,7 +222,6 @@ function ssrContent(data) {
 async function handlePage(env) {
   const checks = await readChecks(env);
   const data = computeStatusData(checks);
-  const safeJson = JSON.stringify(data).replace(/<\//g, '<\\/');
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -242,13 +241,21 @@ async function handlePage(env) {
         <p>sessionserver.mojang.com &mdash; checked every 5 minutes</p>
       </div>
     </div>
-    <div id="content">${ssrContent(data)}</div>
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Fetching status&hellip;</span>
+      </div>
+    </div>
+    <noscript>
+      <style>#content { display: none; } #last-updated { display: none; }</style>
+      ${ssrContent(data)}
+    </noscript>
     <div class="footer">
-      <span id="last-updated">Last updated: ${utcTime(Date.now())} UTC</span>
+      <span id="last-updated">Loading&hellip;</span>
       <div class="footer-right js-only">
         <button id="clock-toggle" class="clock-toggle"></button>
-        <button id="refresh-toggle" class="clock-toggle"></button>
-        <div class="refresh-timer" id="refresh-timer">
+        <div class="refresh-timer">
           <div class="refresh-dot"></div>
           <span id="refresh-countdown">Refresh in 30s</span>
         </div>
@@ -265,7 +272,6 @@ async function handlePage(env) {
       <p>If you enjoy the tools and want to give back, you can support me here: <a href="https://buymeacoffee.com/kohanmathers" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>. No pressure either way &mdash; thanks for being here.</p>
     </div>
   </div>
-  <script>window.__INITIAL_DATA__ = ${safeJson};</script>
   <script src="/app.js"></script>
 </body>
 </html>`;

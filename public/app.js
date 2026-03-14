@@ -5,7 +5,6 @@
   let countdown;
   let lastData = null;
   let use24h = localStorage.getItem('clock24') === '1';
-  let autoRefresh = localStorage.getItem('autoRefresh') !== '0';
 
   function fmtTime(ts) {
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: !use24h });
@@ -220,7 +219,6 @@
 
   function startCountdown() {
     clearInterval(countdown);
-    if (!autoRefresh) return;
     refreshTimer = 30;
     countdown = setInterval(() => {
       refreshTimer--;
@@ -233,34 +231,14 @@
   }
 
   const clockToggle = document.getElementById('clock-toggle');
-  function updateClockToggle() { clockToggle.textContent = use24h ? '24h' : '12h'; }
-  updateClockToggle();
+  function updateToggle() { clockToggle.textContent = use24h ? '24h' : '12h'; }
+  updateToggle();
   clockToggle.addEventListener('click', () => {
     use24h = !use24h;
     localStorage.setItem('clock24', use24h ? '1' : '0');
-    updateClockToggle();
+    updateToggle();
     if (lastData) render(lastData);
   });
-
-  const refreshToggle = document.getElementById('refresh-toggle');
-  const refreshTimer_el = document.getElementById('refresh-timer');
-  if (refreshToggle && refreshTimer_el) {
-    function updateRefreshToggle() {
-      refreshToggle.textContent = autoRefresh ? 'Live' : 'Paused';
-      refreshTimer_el.style.visibility = autoRefresh ? '' : 'hidden';
-    }
-    updateRefreshToggle();
-    refreshToggle.addEventListener('click', () => {
-      autoRefresh = !autoRefresh;
-      localStorage.setItem('autoRefresh', autoRefresh ? '1' : '0');
-      updateRefreshToggle();
-      if (autoRefresh) {
-        startCountdown();
-      } else {
-        clearInterval(countdown);
-      }
-    });
-  }
 
   const readmeButton = document.getElementById('readme-button');
   const readmeModal = document.getElementById('readme-modal');
@@ -283,10 +261,6 @@
     });
   }
 
-  if (window.__INITIAL_DATA__) {
-    render(window.__INITIAL_DATA__);
-  } else {
-    load();
-  }
+  load();
   startCountdown();
 })();
