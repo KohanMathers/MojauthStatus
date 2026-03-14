@@ -239,6 +239,27 @@
     if (lastData) render(lastData);
   });
 
+  const readmeButton = document.getElementById('readme-button');
+  const readmeModal = document.getElementById('readme-modal');
+  if (readmeButton && readmeModal) {
+    const closeModal = () => {
+      readmeModal.classList.remove('open');
+      readmeModal.setAttribute('aria-hidden', 'true');
+    };
+    const openModal = () => {
+      readmeModal.classList.add('open');
+      readmeModal.setAttribute('aria-hidden', 'false');
+    };
+
+    readmeButton.addEventListener('click', openModal);
+    readmeModal.querySelectorAll('[data-close="readme"]').forEach(el => {
+      el.addEventListener('click', closeModal);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  }
+
   load();
   startCountdown();
 })();
