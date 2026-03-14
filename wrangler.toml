@@ -22,4 +22,4 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["StatusStore"]
+new_sqlite_classes = ["StatusStore"]
