@@ -8,13 +8,12 @@
 
 :root {
   --up: #4ade80;
-  --up-dim: rgba(74, 222, 128, 0.15);
+  --up-dim: rgba(74, 222, 128, 0.12);
   --down: #f87171;
-  --down-dim: rgba(248, 113, 113, 0.15);
-  --card-bg: rgba(7, 7, 14, 0.87);
-  --border: rgba(255, 255, 255, 0.07);
-  --text: #e8e8f0;
-  --muted: #8888a0;
+  --down-dim: rgba(248, 113, 113, 0.12);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e4e4f0;
+  --muted: #7e7e9a;
   --surface: rgba(255, 255, 255, 0.04);
   --surface-hover: rgba(255, 255, 255, 0.07);
 }
@@ -24,14 +23,9 @@ html {
 }
 
 body {
-  min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  background: url('https://cdn.quietterminal.co.uk/misc/DarkBackground.png') center/cover fixed no-repeat;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
+  background: linear-gradient(160deg, #222034 0%, #1d1c2e 100%);
+  min-height: 100vh;
   color: var(--text);
 }
 
@@ -41,74 +35,87 @@ a {
 }
 
 a:hover {
-  color: #bfdbfe;
   text-decoration: underline;
 }
 
-.card {
-  background: var(--card-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 36px 32px;
-  width: 100%;
-  max-width: 740px;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+.page-header {
+  background: rgba(12, 11, 24, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.header {
+.page-header-inner {
+  padding: 0 clamp(20px, 4vw, 56px);
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 28px;
 }
 
-.creeper-icon {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
+.brand img {
   image-rendering: pixelated;
+  flex-shrink: 0;
 }
 
-.header-text h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+.brand-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
   color: #fff;
+  letter-spacing: -0.2px;
 }
 
-.header-text p {
-  font-size: 0.78rem;
+.brand-sub {
+  display: block;
+  font-size: 0.73rem;
   color: var(--muted);
   margin-top: 2px;
+}
+
+.header-controls {
+  align-items: center;
+  gap: 14px;
+}
+
+.page-main {
+  padding: 32px clamp(20px, 4vw, 56px) 56px;
 }
 
 .status-hero {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 20px 24px;
+  gap: 20px;
+  padding: 24px 28px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  margin-bottom: 16px;
 }
 
 .status-hero.is-up {
-  border-color: rgba(74, 222, 128, 0.25);
+  border-color: rgba(74, 222, 128, 0.3);
   background: var(--up-dim);
 }
 
 .status-hero.is-down {
-  border-color: rgba(248, 113, 113, 0.25);
+  border-color: rgba(248, 113, 113, 0.3);
   background: var(--down-dim);
 }
 
 .pulse-ring {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -127,11 +134,13 @@ a:hover {
 
 .pulse-ring.down::before {
   background: var(--down);
+  animation: none;
+  opacity: 0.2;
 }
 
 .pulse-dot {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--up);
   position: relative;
@@ -142,11 +151,6 @@ a:hover {
 .pulse-dot.down {
   background: var(--down);
   box-shadow: 0 0 12px var(--down);
-}
-
-.pulse-ring.down::before {
-  animation: none;
-  opacity: 0.25;
 }
 
 @keyframes ping {
@@ -163,40 +167,29 @@ a:hover {
 }
 
 .status-label .main {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #fff;
 }
 
 .status-label .sub {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--muted);
-  margin-top: 3px;
-}
-
-.status-code-badge {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 0.8rem;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  flex-shrink: 0;
+  margin-top: 4px;
 }
 
 .stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .stat-box {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 20px;
   text-align: center;
 }
 
@@ -205,7 +198,7 @@ a:hover {
 }
 
 .stat-box .val {
-  font-size: 1.55rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.5px;
@@ -223,38 +216,37 @@ a:hover {
 .stat-box .label {
   font-size: 0.72rem;
   color: var(--muted);
-  margin-top: 6px;
+  margin-top: 7px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .section-title {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  font-size: 0.78rem;
+  font-weight: 500;
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .section-title span {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
 }
 
 .timeline-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
 }
 
 .timeline-bars {
   display: flex;
   gap: 3px;
-  height: 36px;
+  height: 40px;
   align-items: stretch;
   overflow: hidden;
 }
@@ -263,9 +255,8 @@ a:hover {
   flex: 1;
   min-width: 4px;
   border-radius: 3px;
-  background: #2a2a3a;
+  background: rgba(255, 255, 255, 0.07);
   cursor: pointer;
-  position: relative;
 }
 
 .t-bar.up {
@@ -284,7 +275,7 @@ a:hover {
 .timeline-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .timeline-labels span {
@@ -295,7 +286,7 @@ a:hover {
 #tooltip {
   position: fixed;
   pointer-events: none;
-  background: rgba(10, 10, 20, 0.95);
+  background: rgba(10, 9, 22, 0.96);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 12px;
@@ -310,12 +301,18 @@ a:hover {
   opacity: 1;
 }
 
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 16px;
+  align-items: start;
+}
+
 .chart-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 16px 20px;
 }
 
 #rt-chart {
@@ -328,9 +325,8 @@ a:hover {
 .checks-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 20px;
 }
 
 .check-row {
@@ -361,7 +357,7 @@ a:hover {
   font-family: 'SF Mono', 'Fira Code', monospace;
   padding: 2px 8px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .check-badge {
@@ -383,12 +379,15 @@ a:hover {
   color: var(--down);
 }
 
-.footer {
+.page-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 0.73rem;
   color: var(--muted);
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 .js-only {
@@ -399,12 +398,6 @@ a:hover {
   display: flex;
 }
 
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .clock-toggle {
   font-size: 0.68rem;
   font-family: 'SF Mono', 'Fira Code', monospace;
@@ -412,7 +405,7 @@ a:hover {
   background: none;
   border: 1px solid var(--border);
   border-radius: 5px;
-  padding: 2px 7px;
+  padding: 3px 8px;
   cursor: pointer;
   line-height: 1.6;
 }
@@ -437,27 +430,20 @@ a:hover {
 }
 
 .readme-button {
-  position: fixed;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(17, 24, 39, 0.8);
-  color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 0.78rem;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  font-size: 0.68rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
   cursor: pointer;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  z-index: 20;
+  line-height: 1.6;
 }
 
 .readme-button:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(30, 41, 59, 0.9);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .modal {
@@ -483,23 +469,24 @@ a:hover {
 .modal-card {
   position: relative;
   width: min(92vw, 420px);
-  background: rgba(10, 12, 24, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 22px 20px;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+  background: #1e1d30;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 24px 22px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
   z-index: 1;
 }
 
 .modal-card h2 {
   font-size: 1.05rem;
   margin-bottom: 10px;
+  color: #fff;
 }
 
 .modal-card p {
   font-size: 0.85rem;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.6;
   margin-bottom: 12px;
 }
 
@@ -526,6 +513,68 @@ a:hover {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.subscribe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.webhook-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  outline: none;
+}
+
+.webhook-input::placeholder {
+  color: var(--muted);
+}
+
+.webhook-input:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.webhook-submit {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.webhook-submit:hover {
+  background: #4f46e5;
+}
+
+.webhook-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.webhook-result {
+  font-size: 0.8rem;
+  min-height: 1.2em;
+  margin-top: 2px;
+}
+
+.webhook-result.success {
+  color: var(--up);
+}
+
+.webhook-result.error {
+  color: var(--down);
+}
+
 @keyframes pulse-slow {
 
   0%,
@@ -543,7 +592,7 @@ a:hover {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding: 40px;
+  padding: 80px;
   color: var(--muted);
 }
 
@@ -562,48 +611,36 @@ a:hover {
   }
 }
 
-@media (max-width: 520px) {
-  .card {
-    padding: 24px 18px;
+@media (max-width: 640px) {
+  .brand-sub {
+    display: none;
   }
 
   .stats-row {
-    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
-  }
-
-  .stat-box .val {
-    font-size: 1.2rem;
   }
 
   .stat-box {
-    padding: 12px 8px;
+    padding: 14px 8px;
   }
 
-  .header-text h1 {
-    font-size: 1rem;
+  .stat-box .val {
+    font-size: 1.3rem;
   }
 
   .status-hero {
-    padding: 16px;
+    padding: 16px 18px;
   }
 
   .status-label .main {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
   }
 
-  .check-row {
-    grid-template-columns: 1fr auto auto;
-    gap: 8px;
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
   }
 
   .check-time {
     font-size: 0.72rem;
-  }
-
-  .readme-button {
-    right: 10px;
-    padding: 8px 10px;
-    font-size: 0.7rem;
   }
 }

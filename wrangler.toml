@@ -18,10 +18,13 @@ binding = "STATUS_KV"
 id = "7e9bd205f2314151884449b3cce3b297"
 
 [durable_objects]
-bindings = [
-  { name = "STATUS_DO", class_name = "StatusStore" }
-]
+bindings = [{ name = "STATUS_DO", class_name = "StatusStore" }]
 
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["StatusStore"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mojauth-webhooks"
+database_id = "f9f9aace-69de-49b6-aa65-37fd93ce3c34"

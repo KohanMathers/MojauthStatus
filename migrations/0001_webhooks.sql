@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS webhooks (
+  url TEXT PRIMARY KEY,
+  created_at INTEGER NOT NULL
+);

@@ -106,7 +106,7 @@
   function buildChecks(recent) {
     return recent.slice().reverse().slice(0, 8).map(c => {
       const statusCls = c.s === 'up' ? 'up' : 'down';
-      const statusLabel = c.s === 'up' ? 'Operational' : 'Down';
+      const statusLabel = c.s === 'up' ? 'Up' : 'Down';
       const code = c.c ? c.c : '—';
       return `
         <div class="check-row">
@@ -124,7 +124,7 @@
     const heroClass = !cur ? '' : isUp ? 'is-up' : 'is-down';
     const dotClass = !cur ? '' : isUp ? '' : 'down';
     const ringClass = !cur ? '' : isUp ? '' : 'down';
-    const mainLabel = !cur ? 'Awaiting first check…' : isUp ? 'All Systems Operational' : 'Service Disruption Detected';
+    const mainLabel = !cur ? 'Awaiting first check…' : isUp ? 'Up and running' : 'Not responding';
     const subLabel = !cur ? 'No data yet.' : `HTTP ${cur.c || '—'} &mdash; ${cur.r}ms response &mdash; checked ${fmtTime(cur.t)}`;
 
     const html = `
@@ -136,7 +136,6 @@
           <div class="main">${mainLabel}</div>
           <div class="sub">${subLabel}</div>
         </div>
-        ${cur ? `<div class="status-code-badge">HTTP ${cur.c || '×'}</div>` : ''}
       </div>
 
       <div class="stats-row">
@@ -162,19 +161,21 @@
         ${buildTimeline(data.recent)}
       </div>
 
-      <div class="chart-wrap">
-        <div class="section-title">
-          Response time
-          <span>Successful checks only</span>
+      <div class="dashboard-bottom">
+        <div class="chart-wrap">
+          <div class="section-title">
+            Response time
+            <span>Successful checks only</span>
+          </div>
+          <div id="rt-chart-container"></div>
         </div>
-        <div id="rt-chart-container"></div>
-      </div>
 
-      <div class="checks-wrap">
-        <div class="section-title" style="padding: 12px 16px 0; margin-bottom: 0;">
-          Recent checks
+        <div class="checks-wrap">
+          <div class="section-title" style="padding: 12px 16px 0; margin-bottom: 0;">
+            Recent checks
+          </div>
+          ${buildChecks(data.recent)}
         </div>
-        ${buildChecks(data.recent)}
       </div>
     `;
 
@@ -240,24 +241,78 @@
     if (lastData) render(lastData);
   });
 
+  function openModal(modal) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+  function closeModal(modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal.open').forEach(m => closeModal(m));
+    }
+  });
+
   const readmeButton = document.getElementById('readme-button');
   const readmeModal = document.getElementById('readme-modal');
   if (readmeButton && readmeModal) {
-    const closeModal = () => {
-      readmeModal.classList.remove('open');
-      readmeModal.setAttribute('aria-hidden', 'true');
-    };
-    const openModal = () => {
-      readmeModal.classList.add('open');
-      readmeModal.setAttribute('aria-hidden', 'false');
-    };
-
-    readmeButton.addEventListener('click', openModal);
+    readmeButton.addEventListener('click', () => openModal(readmeModal));
     readmeModal.querySelectorAll('[data-close="readme"]').forEach(el => {
-      el.addEventListener('click', closeModal);
+      el.addEventListener('click', () => closeModal(readmeModal));
     });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+  }
+
+  const subscribeButton = document.getElementById('subscribe-button');
+  const subscribeModal = document.getElementById('subscribe-modal');
+  if (subscribeButton && subscribeModal) {
+    subscribeButton.addEventListener('click', () => openModal(subscribeModal));
+    subscribeModal.querySelectorAll('[data-close="subscribe"]').forEach(el => {
+      el.addEventListener('click', () => closeModal(subscribeModal));
+    });
+
+    document.getElementById('webhook-submit').addEventListener('click', async () => {
+      const input = document.getElementById('webhook-input');
+      const result = document.getElementById('webhook-result');
+      const submit = document.getElementById('webhook-submit');
+      const url = input.value.trim();
+
+      result.className = 'webhook-result';
+      result.textContent = '';
+
+      if (!url) {
+        result.textContent = 'Please enter a webhook URL.';
+        result.className = 'webhook-result error';
+        return;
+      }
+
+      submit.disabled = true;
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          result.textContent = data.error || 'Something went wrong.';
+          result.className = 'webhook-result error';
+        } else if (data.subscribed) {
+          result.textContent = "Subscribed! You'll get a message when the service goes down.";
+          result.className = 'webhook-result success';
+          input.value = '';
+        } else {
+          result.textContent = "Unsubscribed. No more notifications for this webhook.";
+          result.className = 'webhook-result success';
+          input.value = '';
+        }
+      } catch {
+        result.textContent = 'Request failed. Try again.';
+        result.className = 'webhook-result error';
+      } finally {
+        submit.disabled = false;
+      }
     });
   }
 

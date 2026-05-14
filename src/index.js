@@ -21,6 +21,10 @@ export default {
       });
     }
 
+    if (url.pathname === '/api/subscribe') {
+      return handleSubscribe(request, env);
+    }
+
     return env.ASSETS.fetch(request);
   },
 
@@ -48,9 +52,15 @@ async function performCheck(env) {
     statusCode = 0;
   }
 
-  const check = { t: Date.now(), s: status, c: statusCode, r: responseTime };
+  const existing = await readChecks(env);
+  const lastCheck = existing.length > 0 ? existing[existing.length - 1] : null;
 
+  const check = { t: Date.now(), s: status, c: statusCode, r: responseTime };
   await appendCheck(env, check);
+
+  if (status === 'down' && (!lastCheck || lastCheck.s === 'up')) {
+    await notifyWebhooks(env, check);
+  }
 }
 
 function computeStatusData(checks) {
@@ -171,7 +181,7 @@ function ssrRtChart(recent) {
 function ssrChecks(recent) {
   return recent.slice().reverse().slice(0, 8).map((c) => {
     const cls = c.s === 'up' ? 'up' : 'down';
-    const label = c.s === 'up' ? 'Operational' : 'Down';
+    const label = c.s === 'up' ? 'Up' : 'Down';
     return `
       <div class="check-row">
         <span class="check-time">${utcDate(c.t)}</span>
@@ -185,7 +195,7 @@ function ssrContent(data) {
   const cur = data.current;
   const isUp = cur && cur.s === 'up';
   const heroClass = !cur ? '' : isUp ? 'is-up' : 'is-down';
-  const mainLabel = !cur ? 'Awaiting first check…' : isUp ? 'All Systems Operational' : 'Service Disruption Detected';
+  const mainLabel = !cur ? 'Awaiting first check…' : isUp ? 'Up and running' : 'Not responding';
   const subLabel = !cur
     ? 'No data yet.'
     : `HTTP ${cur.c || '—'} &mdash; ${cur.r}ms response &mdash; checked ${utcTime(cur.t)} UTC`;
@@ -198,8 +208,7 @@ function ssrContent(data) {
         <div class="main">${mainLabel}</div>
         <div class="sub">${subLabel}</div>
       </div>
-      ${cur ? `<div class="status-code-badge">HTTP ${cur.c || '×'}</div>` : ''}
-    </div>
+      </div>
     <div class="stats-row">
       <div class="stat-box">${ssrFmtUptime(data.uptime24h)}<div class="label">24h uptime</div></div>
       <div class="stat-box">${ssrFmtUptime(data.uptime7d)}<div class="label">7d uptime</div></div>
@@ -209,13 +218,15 @@ function ssrContent(data) {
       <div class="section-title">Last 90 checks<span>Each bar = 5 minutes</span></div>
       ${ssrTimeline(data.recent)}
     </div>
-    <div class="chart-wrap">
-      <div class="section-title">Response time<span>Successful checks only</span></div>
-      <div id="rt-chart-container">${ssrRtChart(data.recent)}</div>
-    </div>
-    <div class="checks-wrap">
-      <div class="section-title" style="padding: 12px 16px 0; margin-bottom: 0;">Recent checks</div>
-      ${ssrChecks(data.recent)}
+    <div class="dashboard-bottom">
+      <div class="chart-wrap">
+        <div class="section-title">Response time<span>Successful checks only</span></div>
+        <div id="rt-chart-container">${ssrRtChart(data.recent)}</div>
+      </div>
+      <div class="checks-wrap">
+        <div class="section-title" style="padding: 12px 16px 0; margin-bottom: 0;">Recent checks</div>
+        ${ssrChecks(data.recent)}
+      </div>
     </div>`;
 }
 
@@ -233,14 +244,27 @@ async function handlePage(env) {
 </head>
 <body>
   <div id="tooltip"></div>
-  <div class="card">
-    <div class="header">
-      <img height="32" width="32" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg" alt="Creeper Icon">
-      <div class="header-text">
-        <h1>Mojang Authentication Status</h1>
-        <p>sessionserver.mojang.com &mdash; checked every 5 minutes</p>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div class="brand">
+        <img height="28" width="28" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg" alt="Creeper Icon">
+        <div>
+          <span class="brand-title">Mojang Auth Status</span>
+          <span class="brand-sub">sessionserver.mojang.com &mdash; checked every 5 minutes</span>
+        </div>
+      </div>
+      <div class="header-controls js-only">
+        <button id="clock-toggle" class="clock-toggle"></button>
+        <button id="readme-button" class="readme-button" aria-haspopup="dialog" aria-controls="readme-modal">please read me :)</button>
+        <button id="subscribe-button" class="clock-toggle" aria-haspopup="dialog" aria-controls="subscribe-modal">Subscribe</button>
+        <div class="refresh-timer">
+          <div class="refresh-dot"></div>
+          <span id="refresh-countdown">Refresh in 30s</span>
+        </div>
       </div>
     </div>
+  </header>
+  <main class="page-main">
     <div id="content">
       <div class="loading">
         <div class="spinner"></div>
@@ -251,18 +275,10 @@ async function handlePage(env) {
       <style>#content { display: none; } #last-updated { display: none; }</style>
       ${ssrContent(data)}
     </noscript>
-    <div class="footer">
+    <footer class="page-footer">
       <span id="last-updated">Loading&hellip;</span>
-      <div class="footer-right js-only">
-        <button id="clock-toggle" class="clock-toggle"></button>
-        <div class="refresh-timer">
-          <div class="refresh-dot"></div>
-          <span id="refresh-countdown">Refresh in 30s</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <button id="readme-button" class="readme-button" aria-haspopup="dialog" aria-controls="readme-modal">Read me</button>
+    </footer>
+  </main>
   <div id="readme-modal" class="modal" aria-hidden="true">
     <div class="modal-backdrop" data-close="readme"></div>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="readme-title">
@@ -270,6 +286,19 @@ async function handlePage(env) {
       <h2 id="readme-title">A quick note</h2>
       <p>I build these tools for fun and for the community. Keeping everything running does have real maintenance costs, and even $1 goes a long way.</p>
       <p>If you enjoy the tools and want to give back, you can support me here: <a href="https://buymeacoffee.com/kohanmathers" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>. No pressure either way &mdash; thanks for being here.</p>
+    </div>
+  </div>
+  <div id="subscribe-modal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="subscribe"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="subscribe-title">
+      <button class="modal-close" data-close="subscribe" aria-label="Close">&times;</button>
+      <h2 id="subscribe-title">Discord notifications</h2>
+      <p>Enter a Discord webhook URL to get a message when the auth server goes down. Enter the same URL again to unsubscribe.</p>
+      <div class="subscribe-form">
+        <input id="webhook-input" type="url" class="webhook-input" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" spellcheck="false">
+        <button id="webhook-submit" class="webhook-submit">Subscribe</button>
+      </div>
+      <p id="webhook-result" class="webhook-result" aria-live="polite"></p>
     </div>
   </div>
   <script src="/app.js"></script>
@@ -301,6 +330,98 @@ async function appendCheck(env, check) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(check),
   });
+}
+
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+function isDiscordWebhook(url) {
+  try {
+    const u = new URL(url);
+    return (
+      (u.hostname === 'discord.com' ||
+        u.hostname === 'discordapp.com' ||
+        u.hostname.endsWith('.discord.com')) &&
+      u.pathname.startsWith('/api/webhooks/')
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function handleSubscribe(request, env) {
+  if (request.method !== 'POST') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Invalid JSON' }, 400);
+  }
+
+  const { url } = body;
+  if (!url || typeof url !== 'string') {
+    return jsonResponse({ error: 'Missing url' }, 400);
+  }
+  if (!isDiscordWebhook(url)) {
+    return jsonResponse({ error: 'Not a valid Discord webhook URL' }, 400);
+  }
+
+  const existing = await env.DB.prepare('SELECT url FROM webhooks WHERE url = ?').bind(url).first();
+  if (existing) {
+    await env.DB.prepare('DELETE FROM webhooks WHERE url = ?').bind(url).run();
+    return jsonResponse({ subscribed: false });
+  }
+
+  await env.DB.prepare('INSERT INTO webhooks (url, created_at) VALUES (?, ?)').bind(url, Date.now()).run();
+  return jsonResponse({ subscribed: true });
+}
+
+async function notifyWebhooks(env, check) {
+  let rows;
+  try {
+    const result = await env.DB.prepare('SELECT url FROM webhooks').all();
+    rows = result.results;
+  } catch {
+    return;
+  }
+  if (!rows.length) return;
+
+  const statusStr = check.c ? `HTTP ${check.c}` : 'Timeout';
+  const payload = {
+    username: 'Mojang Status',
+    embeds: [
+      {
+        title: '⚠️ Mojang Auth is down',
+        description:
+          'sessionserver.mojang.com stopped responding to authentication checks.',
+        color: 0xed4245,
+        fields: [
+          { name: 'Time', value: `${utcTime(check.t)} UTC`, inline: true },
+          { name: 'Status', value: statusStr, inline: true },
+        ],
+        timestamp: new Date(check.t).toISOString(),
+        footer: { text: 'mojauth status monitor' },
+      },
+    ],
+  };
+
+  await Promise.allSettled(
+    rows.map(({ url }) =>
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000),
+      })
+    )
+  );
 }
 
 export class StatusStore {

@@ -11,16 +11,28 @@
 <body>
   <div id="tooltip"></div>
 
-  <div class="card">
-    <div class="header">
-      <img height="32" width="32" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg"
-        alt="Creeper Icon">
-      <div class="header-text">
-        <h1>Mojang Authentication Status</h1>
-        <p>sessionserver.mojang.com &mdash; checked every 5 minutes</p>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div class="brand">
+        <img height="28" width="28" src="https://upload.wikimedia.org/wikipedia/commons/6/64/Minecraft-creeper-face.svg" alt="Creeper Icon">
+        <div>
+          <span class="brand-title">Mojang Auth Status</span>
+          <span class="brand-sub">sessionserver.mojang.com &mdash; checked every 5 minutes</span>
+        </div>
+      </div>
+      <div class="header-controls js-only">
+        <button id="clock-toggle" class="clock-toggle"></button>
+        <button id="readme-button" class="readme-button" aria-haspopup="dialog" aria-controls="readme-modal">please read me :)</button>
+        <button id="subscribe-button" class="clock-toggle" aria-haspopup="dialog" aria-controls="subscribe-modal">Subscribe</button>
+        <div class="refresh-timer">
+          <div class="refresh-dot"></div>
+          <span id="refresh-countdown">Refresh in 30s</span>
+        </div>
       </div>
     </div>
+  </header>
 
+  <main class="page-main">
     <div id="content">
       <div class="loading">
         <div class="spinner"></div>
@@ -28,25 +40,15 @@
       </div>
     </div>
 
-    <div class="footer">
+    <footer class="page-footer">
       <span id="last-updated">Loading&hellip;</span>
-      <div class="footer-right js-only">
-        <button id="clock-toggle" class="clock-toggle"></button>
-        <div class="refresh-timer">
-          <div class="refresh-dot"></div>
-          <span id="refresh-countdown">Refresh in 30s</span>
-        </div>
-      </div>
-    </div>
-  </div>
+    </footer>
+  </main>
 
-  <button id="readme-button" class="readme-button" aria-haspopup="dialog" aria-controls="readme-modal">
-    Read me
-  </button>
   <div id="readme-modal" class="modal" aria-hidden="true">
     <div class="modal-backdrop" data-close="readme"></div>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="readme-title">
-      <button class="modal-close" data-close="readme" aria-label="Close">×</button>
+      <button class="modal-close" data-close="readme" aria-label="Close">&times;</button>
       <h2 id="readme-title">A quick note</h2>
       <p>
         I build these tools for fun and for the community. Keeping everything running does have real
@@ -55,8 +57,22 @@
       <p>
         If you enjoy the tools and want to give back, you can support me here:
         <a href="https://buymeacoffee.com/kohanmathers" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>.
-        No pressure either way — thanks for being here.
+        No pressure either way &mdash; thanks for being here.
       </p>
+    </div>
+  </div>
+
+  <div id="subscribe-modal" class="modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="subscribe"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="subscribe-title">
+      <button class="modal-close" data-close="subscribe" aria-label="Close">&times;</button>
+      <h2 id="subscribe-title">Discord notifications</h2>
+      <p>Enter a Discord webhook URL to get a message when the auth server goes down. Enter the same URL again to unsubscribe.</p>
+      <div class="subscribe-form">
+        <input id="webhook-input" type="url" class="webhook-input" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" spellcheck="false">
+        <button id="webhook-submit" class="webhook-submit">Subscribe</button>
+      </div>
+      <p id="webhook-result" class="webhook-result" aria-live="polite"></p>
     </div>
   </div>
 
