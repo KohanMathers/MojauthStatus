@@ -156,7 +156,7 @@
       <div class="timeline-wrap">
         <div class="section-title">
           Last 90 checks
-          <span>Each bar = 5 minutes</span>
+          <span>Each bar = ${data.intervalMinutes || 5} minutes</span>
         </div>
         ${buildTimeline(data.recent)}
       </div>

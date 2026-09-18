@@ -1,6 +1,5 @@
 node_modules/
-.wrangler/
-dist/
-.dev.vars
+data/
+.env
 *.local
 package-lock.json

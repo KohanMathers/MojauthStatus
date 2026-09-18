@@ -1,0 +1,16 @@
+services:
+  mojauth-status:
+    build: .
+    image: mojauth-status:latest
+    container_name: mojauth-status
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8787}:8787"
+    environment:
+      CHECK_INTERVAL_MINUTES: ${CHECK_INTERVAL_MINUTES:-5}
+      ENABLE_TRIGGER: ${ENABLE_TRIGGER:-false}
+    volumes:
+      - mojauth-data:/data
+
+volumes:
+  mojauth-data:
